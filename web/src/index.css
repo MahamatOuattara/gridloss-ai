@@ -1,0 +1,416 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --navy: #0e1a2b;
+  --orange: #ff6600;
+  --orange-dark: #e65c00;
+  --orange-soft: #fff1e6;
+  --green: #1a9e5c;
+  --green-dark: #14804a;
+  --green-soft: #e6f7ee;
+  --blue: #1c5d99;
+  --blue-light: #4e8fcb;
+  --danger: #c14545;
+  --ink: #0e1a2b;
+  --muted: #5a6b80;
+  --surface: #f3f6fb;
+  --panel: #ffffff;
+  --panel-muted: #eef2f8;
+  --edge: #d5deea;
+  --sidebar: #e8eef6;
+  --header: #ffffff;
+  --field-bg: #ffffff;
+  --field-border: #d5deea;
+  --grid-line: rgba(14, 26, 43, 0.05);
+  --shadow-panel: 0 10px 32px -22px rgba(14, 26, 43, 0.28);
+  --ghost-bg: #ffffff;
+  --ghost-fg: #0e1a2b;
+  --ghost-border: #d5deea;
+  --dropzone-bg: #f8fafd;
+  --dropzone-border: #b7c4d6;
+}
+
+html.dark,
+.dark {
+  color-scheme: dark;
+  --navy: #0b1220;
+  --orange: #ff8a33;
+  --orange-dark: #ffb06a;
+  --orange-soft: rgba(255, 138, 51, 0.22);
+  --green: #6eebb0;
+  --green-dark: #5ee0a0;
+  --green-soft: rgba(110, 235, 176, 0.2);
+  --blue: #9fd0f5;
+  --blue-light: #c5e4fa;
+  --danger: #ff9b9b;
+  --ink: #ffffff;
+  --muted: #dce4ef;
+  --surface: #070b14;
+  --panel: #1a2336;
+  --panel-muted: rgba(255, 255, 255, 0.1);
+  --edge: rgba(255, 255, 255, 0.28);
+  --sidebar: #101826;
+  --header: #101826;
+  --field-bg: rgba(255, 255, 255, 0.12);
+  --field-border: rgba(255, 255, 255, 0.35);
+  --grid-line: rgba(159, 208, 245, 0.12);
+  --shadow-panel: 0 18px 50px -28px rgba(0, 0, 0, 0.8);
+  --ghost-bg: rgba(255, 255, 255, 0.1);
+  --ghost-fg: #ffffff;
+  --ghost-border: rgba(255, 255, 255, 0.32);
+  --dropzone-bg: rgba(255, 255, 255, 0.08);
+  --dropzone-border: rgba(255, 255, 255, 0.38);
+}
+
+.gl-kpi-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.gl-kpi-value {
+  font-family: Sora, sans-serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.gl-kpi-note {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+/* Texte et icônes : blanc forcé en sombre, au-dessus de Tailwind */
+html.dark,
+html.dark body {
+  color: #ffffff !important;
+}
+
+html.dark header,
+html.dark header p,
+html.dark header span,
+html.dark header button,
+html.dark header a,
+html.dark header svg,
+html.dark aside,
+html.dark aside p,
+html.dark aside span,
+html.dark aside a,
+html.dark aside button,
+html.dark aside svg,
+html.dark main,
+html.dark main p,
+html.dark main span,
+html.dark main a,
+html.dark main h1,
+html.dark main h2,
+html.dark main h3,
+html.dark main h4,
+html.dark main li,
+html.dark main td,
+html.dark main th,
+html.dark main b,
+html.dark main label,
+html.dark main button,
+html.dark .gl-panel,
+html.dark .gl-kpi,
+html.dark .gl-kpi-label,
+html.dark .gl-kpi-value,
+html.dark .gl-section-title,
+html.dark .gl-field,
+html.dark .gl-btn-ghost,
+html.dark .gl-badge,
+html.dark table {
+  color: #ffffff !important;
+}
+
+html.dark .gl-kpi-note,
+html.dark .text-muted {
+  color: #d5deea !important;
+}
+
+html.dark main svg {
+  color: #ffffff !important;
+}
+
+html.dark .text-amber,
+html.dark .text-amber-dark,
+html.dark aside a.text-amber,
+html.dark header .text-amber {
+  color: #ff8a33 !important;
+}
+
+html.dark .text-green {
+  color: #6eebb0 !important;
+}
+
+html.dark .text-blue {
+  color: #9fd0f5 !important;
+}
+
+html.dark .text-danger {
+  color: #ff9b9b !important;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  background: var(--surface);
+  font-feature-settings: "ss01" on, "kern" on;
+}
+
+@layer components {
+  .gl-panel {
+    background: var(--panel);
+    color: var(--ink);
+    border: 1px solid var(--edge);
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-panel);
+  }
+
+  .gl-kpi {
+    @apply p-4 md:p-5 relative overflow-hidden;
+    background: var(--panel);
+    color: var(--ink);
+    border: 1px solid var(--edge);
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-panel);
+  }
+
+  .gl-kpi::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 10px;
+    bottom: 10px;
+    width: 3px;
+    border-radius: 99px;
+    background: var(--orange);
+  }
+
+  .gl-badge {
+    @apply inline-flex items-center gap-1.5 rounded px-2 py-0.5 text-xs font-semibold;
+  }
+
+  .gl-page {
+    @apply w-full px-5 md:px-6 lg:px-8 py-5 md:py-6;
+    animation: gl-fade-up 0.4s ease both;
+  }
+
+  .gl-btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition;
+  }
+
+  .gl-btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition shadow-sm;
+    background: #ff6600;
+    color: #fff;
+  }
+
+  .gl-btn-primary:hover {
+    background: #e65c00;
+    color: #fff;
+  }
+
+  .gl-btn-primary:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    filter: none;
+  }
+
+  .gl-btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition shadow-sm;
+    background: var(--green);
+    color: #fff;
+  }
+
+  .gl-btn-secondary:hover {
+    background: var(--green-dark);
+    color: #fff;
+  }
+
+  .gl-btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition;
+    background: var(--ghost-bg);
+    color: var(--ghost-fg);
+    border: 1px solid var(--ghost-border);
+  }
+
+  .gl-btn-ghost:hover {
+    border-color: var(--orange);
+  }
+
+  .gl-section-title {
+    @apply font-display text-lg font-bold tracking-tight;
+    color: var(--ink);
+  }
+}
+
+@keyframes gl-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.gl-animate {
+  animation: gl-fade-up 0.4s ease both;
+}
+
+.tour-highlight {
+  position: relative;
+  z-index: 45;
+  box-shadow: 0 0 0 3px #ff6600, 0 0 0 8px rgba(255, 102, 0, 0.25);
+  border-radius: 14px;
+}
+
+.dropzone {
+  border: 1px dashed var(--dropzone-border);
+  border-radius: 10px;
+  background: var(--dropzone-bg);
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.dropzone-active {
+  border-color: #ff6600;
+  background: var(--orange-soft);
+}
+
+.gl-app-main {
+  background-color: var(--surface);
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+.gl-field {
+  background: var(--field-bg);
+  border: 1px solid var(--field-border);
+  color: var(--ink);
+  border-radius: 0.5rem;
+}
+
+.gl-field:focus,
+.gl-field:focus-visible {
+  outline: none;
+  border-color: #ff6600;
+}
+
+.gl-field option,
+.gl-field optgroup {
+  background: var(--panel);
+  color: var(--ink);
+}
+
+.gl-field:disabled {
+  opacity: 0.85;
+  color: var(--ink);
+}
+
+.gl-btn-ghost-dark {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition;
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.gl-btn-ghost-dark:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(248, 148, 47, 0.55);
+}
+
+.gl-glass {
+  background: rgba(8, 14, 28, 0.58);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 1.25rem;
+  box-shadow: 0 24px 80px -32px rgba(0, 0, 0, 0.7);
+}
+
+.gl-film-track {
+  animation: gl-film 55s linear infinite;
+  will-change: transform;
+}
+
+@keyframes gl-film {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.gl-scanlines {
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0 3px,
+    rgba(255, 255, 255, 0.015) 3px 4px
+  );
+  mix-blend-mode: overlay;
+}
+
+.gl-radar-sweep {
+  background: conic-gradient(from 0deg, transparent 0 78%, rgba(248, 148, 47, 0.28) 88%, transparent 100%);
+  animation: gl-radar 8s linear infinite;
+}
+
+@keyframes gl-radar {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.gl-hud-input {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #fff;
+  border-radius: 0.75rem;
+}
+
+.gl-hud-input::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.gl-hud-input:focus {
+  outline: none;
+  border-color: #ff6600;
+  box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.18);
+}
+
+.gl-sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--muted) transparent;
+}
+
+.gl-sidebar-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.gl-sidebar-scroll::-webkit-scrollbar-thumb {
+  background: var(--edge);
+  border-radius: 99px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gl-film-track,
+  .gl-radar-sweep {
+    animation: none;
+  }
+}

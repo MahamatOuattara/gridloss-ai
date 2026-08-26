@@ -12,6 +12,8 @@ Implémente les briques réellement calculées pour le prototype :
 Chaque fonction est utilisable indépendamment (voir app.py pour l'usage bout-en-bout).
 """
 
+from __future__ import annotations
+
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -22,6 +24,41 @@ DATA_DIR = Path(__file__).parent / "data"
 MONTHS = ["jan", "fev", "mar", "avr", "mai", "juin", "juil", "aout", "sept", "oct", "nov", "dec"]
 
 TARIF_FCFA_KWH = 95  # tarif moyen simplifié pour la valorisation du gain estimé
+
+# Fichier unique compteurs — une ligne par abonné, infos poste répétées.
+UNIFIED_REQUIRED = [
+    "abonne_id", "poste_id", "poste_nom", "poste_x", "poste_y",
+    "longueur_km", "section_mm2", "charge_moy_A",
+    "energie_injectee_kwh", "energie_facturee_kwh",
+] + MONTHS
+
+
+def validate_columns(df: pd.DataFrame, required: list[str]) -> list[str]:
+    return [c for c in required if c not in df.columns]
+
+
+def split_unified_dataset(df: pd.DataFrame):
+    """Éclate le fichier unique (une ligne par abonné, infos poste répétées) en
+    (postes_df, abonnes_df) au format attendu par le moteur — le poste est
+    reconstruit par agrégation, n_abonnes compté automatiquement."""
+    postes_df = df.groupby("poste_id").agg(
+        nom=("poste_nom", "first"), x=("poste_x", "first"), y=("poste_y", "first"),
+        longueur_km=("longueur_km", "first"), section_mm2=("section_mm2", "first"),
+        charge_moy_A=("charge_moy_A", "first"),
+        energie_injectee_kwh=("energie_injectee_kwh", "first"),
+        energie_facturee_kwh=("energie_facturee_kwh", "first"),
+        n_abonnes=("abonne_id", "count"),
+    ).reset_index()
+
+    abonnes_cols = ["abonne_id", "poste_id"] + MONTHS
+    if "is_fraud_verite_terrain" in df.columns:
+        abonnes_cols += ["is_fraud_verite_terrain", "fraud_type_verite_terrain"]
+    abonnes_df = df[abonnes_cols].copy()
+    if "is_fraud_verite_terrain" not in abonnes_df.columns:
+        abonnes_df["is_fraud_verite_terrain"] = False
+        abonnes_df["fraud_type_verite_terrain"] = ""
+
+    return postes_df, abonnes_df
 
 
 # ----------------------------------------------------------------------
@@ -203,16 +240,18 @@ def construire_topologie(postes_df: pd.DataFrame) -> pd.DataFrame:
 # ----------------------------------------------------------------------
 # PIPELINE COMPLET
 # ----------------------------------------------------------------------
-def run_pipeline():
-    postes_df = pd.read_csv(DATA_DIR / "postes.csv")
-    abonnes_df = pd.read_csv(DATA_DIR / "abonnes.csv")
-
+def run_from_frames(postes_df: pd.DataFrame, abonnes_df: pd.DataFrame):
     postes_sep = separer_pertes(postes_df)
     abonnes_scored = detecter_fraude(abonnes_df)
     postes_zoned, zones = construire_atlas(postes_sep)
     topologie = construire_topologie(postes_zoned)
-
     return dict(postes=postes_zoned, abonnes=abonnes_scored, zones=zones, topologie=topologie)
+
+
+def run_pipeline():
+    postes_df = pd.read_csv(DATA_DIR / "postes.csv")
+    abonnes_df = pd.read_csv(DATA_DIR / "abonnes.csv")
+    return run_from_frames(postes_df, abonnes_df)
 
 
 if __name__ == "__main__":

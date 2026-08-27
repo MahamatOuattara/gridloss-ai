@@ -4,7 +4,10 @@ import numpy as np
 import plotly.graph_objects as go
 import base64
 from pathlib import Path
-from engine import run_pipeline, MONTHS, separer_pertes, detecter_fraude, construire_atlas, construire_topologie
+from engine import (
+    run_pipeline, MONTHS, separer_pertes, detecter_fraude, construire_atlas,
+    construire_topologie, UNIFIED_REQUIRED, validate_columns, split_unified_dataset,
+)
 
 st.set_page_config(page_title="GridLoss AI", layout="wide", initial_sidebar_state="collapsed", page_icon="⚡")
 
@@ -282,55 +285,12 @@ def load_default():
     return res["postes"], res["abonnes"], res["zones"], res["topologie"]
 
 
-# Schémas internes attendus par le moteur, une fois le fichier unique éclaté
-# (voir split_unified_dataset) — ne correspondent plus au format d'import lui-même.
-POSTES_REQUIRED = ["poste_id", "nom", "x", "y", "longueur_km", "section_mm2", "charge_moy_A",
-                   "n_abonnes", "energie_injectee_kwh", "energie_facturee_kwh"]
-ABONNES_REQUIRED = ["abonne_id", "poste_id"] + MONTHS
-
-# Fichier unique compteurs — une ligne par abonné, avec les informations de son
-# poste répétées sur chaque ligne (au lieu de deux fichiers postes.csv/abonnes.csv
-# séparés). Le poste est ensuite reconstruit par agrégation (voir split_unified_dataset).
-UNIFIED_REQUIRED = ["abonne_id", "poste_id", "poste_nom", "poste_x", "poste_y",
-                    "longueur_km", "section_mm2", "charge_moy_A",
-                    "energie_injectee_kwh", "energie_facturee_kwh"] + MONTHS
-
-
-def validate_columns(df, required):
-    return [c for c in required if c not in df.columns]
-
-
 def read_uploaded_table(uploaded_file):
     """Lit un fichier importé (CSV ou Excel) en DataFrame, quel que soit le format."""
     name = uploaded_file.name.lower()
     if name.endswith((".xlsx", ".xls")):
         return pd.read_excel(uploaded_file)
     return pd.read_csv(uploaded_file)
-
-
-def split_unified_dataset(df):
-    """Éclate le fichier unique (une ligne par abonné, infos poste répétées) en
-    (postes_df, abonnes_df) au format attendu par le moteur — le poste est
-    reconstruit par agrégation, n_abonnes compté automatiquement (pas besoin
-    qu'il soit fourni dans le fichier)."""
-    postes_df = df.groupby("poste_id").agg(
-        nom=("poste_nom", "first"), x=("poste_x", "first"), y=("poste_y", "first"),
-        longueur_km=("longueur_km", "first"), section_mm2=("section_mm2", "first"),
-        charge_moy_A=("charge_moy_A", "first"),
-        energie_injectee_kwh=("energie_injectee_kwh", "first"),
-        energie_facturee_kwh=("energie_facturee_kwh", "first"),
-        n_abonnes=("abonne_id", "count"),
-    ).reset_index()
-
-    abonnes_cols = ["abonne_id", "poste_id"] + MONTHS
-    if "is_fraud_verite_terrain" in df.columns:
-        abonnes_cols += ["is_fraud_verite_terrain", "fraud_type_verite_terrain"]
-    abonnes_df = df[abonnes_cols].copy()
-    if "is_fraud_verite_terrain" not in abonnes_df.columns:
-        abonnes_df["is_fraud_verite_terrain"] = False
-        abonnes_df["fraud_type_verite_terrain"] = ""
-
-    return postes_df, abonnes_df
 
 
 ZONE_COLOR = {"Faible": LBLUE, "Moyenne": AMBER, "Critique": RED}
